@@ -9,10 +9,18 @@
 #include "lock_client.h"
 #include "rpc.h"
 
+#include <queue>
+#include <pthread.h>
+
+using namespace std;
+
+
 class lock_server {
 
  protected:
   int nacquire;
+  map<lock_protocol::lockid_t, int> lock_map;
+  map<lock_protocol::lockid_t, queue<int> > wait_queue;
 
  public:
   lock_server();

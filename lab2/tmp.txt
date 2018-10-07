@@ -1,0 +1,754 @@
+server start!
+if map empty? 1
+if queue empty? 1
+
+client 333154024 acquire lock 1
+new lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 333154024 acquire lock 2
+new lock 2
+client 333154024 get lock 2
+client 333154024 release lock 2
+nobody waits for lock 2
+client 333154024 release lock 1
+nobody waits for lock 1
+client 365094197 acquire lock 1
+owner of lock 1 is 0
+client 365094197 get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 0
+client 681545298 acquire lock 1
+queue size of lock 1: 1
+client 54004972 acquire lock 1
+queue size of lock 1: 2
+client 520167737 acquire lock 1
+queue size of lock 1: 3
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 365094197 release lock 1
+client 1259377075 will get lock 1
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 54004972 will get lock 1
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 365094197 acquire lock 1
+owner of lock 1 is 0
+client 365094197 get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 0
+client 681545298 acquire lock 1
+queue size of lock 1: 1
+client 365094197 release lock 1
+client 1259377075 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 1
+client 54004972 acquire lock 1
+queue size of lock 1: 2
+client 520167737 acquire lock 1
+queue size of lock 1: 3
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 365094197 acquire lock 1
+queue size of lock 1: 4
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 1259377075 acquire lock 1
+queue size of lock 1: 4
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 365094197 will get lock 1
+client 681545298 acquire lock 1
+queue size of lock 1: 4
+client 365094197 get lock 1
+client 365094197 release lock 1
+client 54004972 will get lock 1
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 54004972 acquire lock 1
+queue size of lock 1: 3
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 3
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 1259377075 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 3
+client 1259377075 get lock 1
+client 1259377075 release lock 1
+client 681545298 will get lock 1
+client 681545298 get lock 1
+client 681545298 release lock 1
+client 54004972 will get lock 1
+client 54004972 get lock 1
+client 54004972 release lock 1
+client 520167737 will get lock 1
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 0
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 1
+client 333154024 acquire lock 1
+queue size of lock 1: 2
+client 333154024 acquire lock 1
+queue size of lock 1: 3
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 520167737 get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 4
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 4
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 3
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 520167737 acquire lock 1
+queue size of lock 1: 3
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 acquire lock 1
+clt 333154024 acquire lock 1 again
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 520167737 will get lock 1
+client 333154024 acquire lock 1
+queue size of lock 1: 2
+client 520167737 get lock 1
+client 520167737 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+client 333154024 will get lock 1
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
+client 333154024 acquire lock 1
+owner of lock 1 is 0
+client 333154024 get lock 1
+client 333154024 release lock 1
+nobody waits for lock 1
