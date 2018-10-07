@@ -11,6 +11,8 @@
 
 using namespace std;
 
+int create_mutex = -1;
+
 yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
 {
   ec = new extent_client(extent_dst);
@@ -179,6 +181,7 @@ yfs_client::setattr(inum ino, size_t size)
     printf("====================set attr==================\n");
     string buf;
 
+    lc->acquire(ino);
     r = ec->get(ino, buf);
     if( r != OK){
         return r;
@@ -205,7 +208,7 @@ yfs_client::setattr(inum ino, size_t size)
             return r;
         }
     }
-
+    lc->release(ino);
     return r;
 }
 
@@ -225,22 +228,28 @@ yfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out)
         return RPCERR;
     }
     bool found;
+
+    lc->acquire(create_mutex);
     lookup(parent,name,found,ino_out);
     if(found){
         printf("file %s has existed\n",name);
+        lc->release(create_mutex);
         return EXIST;
     }
 
     //cteate file
     if(ec->create(2,ino_out) != OK){
+        lc->release(create_mutex);
         return r;
     }
     printf("new file ino: %d\n",ino_out);
 
     //modify parents
     string buf;
+    lc->acquire(parent);
     r = ec->get(parent,buf);    
     if(r != OK){
+        lc->release(parent);
         return r;
     }
     
@@ -254,9 +263,9 @@ yfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out)
     
     //printf("new buf\n%s\n",buf.c_str());
     r = ec->put(parent,string(buf));
+    lc->release(parent);
+    lc->release(create_mutex);
     if(r != OK){
-        printf("reach here!\n");
-        printf("ret %d\n",r);
         return r;
     }
 
@@ -279,22 +288,28 @@ yfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out)
         return RPCERR;
     }
     bool found;
+
+    lc->acquire(create_mutex);
     lookup(parent,name,found,ino_out);
     if(found){
         printf("dir %s has existed\n",name);
+        lc->release(create_mutex);
         return EXIST;
     }
 
     //cteate dir
     r = ec->create(1,ino_out);
     if(r != extent_protocol::OK){
+        lc->release(create_mutex);
         return r;
-    }
+    }    
 
     //modify parents
     string buf;
+    lc->acquire(parent);
     r = ec->get(parent,buf);
     if( r != OK){
+        lc->release(parent);
         return r;
     }
     
@@ -308,6 +323,8 @@ yfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out)
     
     //printf("new buf\n%s\n",buf.c_str());
     r = ec->put(parent,string(buf));
+    lc->release(parent);
+    lc->release(create_mutex);
     if( r != extent_protocol::OK){
         return r;
     }
@@ -380,7 +397,9 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
 
     string buf;
 
+    lc->acquire(dir);
     r = ec->get(dir,buf);
+    lc->release(dir);
     if(r != extent_protocol::OK){
         return r;
     }
@@ -422,7 +441,9 @@ yfs_client::read(inum ino, size_t size, off_t off, std::string &data)
 
     string buf;
 
+    lc->acquire(ino);
     r = ec->get(ino,buf);
+    lc->release(ino);
     if(r != extent_protocol::OK){
         return r;
     }
@@ -457,8 +478,10 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
 
     printf("===================write==================\n");
     string buf;
+    lc->acquire(ino);
     r = ec->get(ino,buf);
     if(r != extent_protocol::OK){
+        lc->release(ino);
         return r;
     }
     //cout<<"read :\n"<<buf<<endl;
@@ -497,6 +520,7 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
     //cout<<final<<endl;
 
     r = ec->put(ino,final);
+    lc->release(ino);
     if(r != OK){
         return r;
     }    
@@ -528,8 +552,11 @@ int yfs_client::unlink(inum parent,const char *name)
 
     //delete entry from parent
     string buf;
+
+    lc->acquire(parent);
     r = ec->get(parent,buf);
     if(r != OK){
+        lc->release(parent);
         return r;
     }
     string dele = string(name) + ":" +filename(ino);
@@ -546,11 +573,14 @@ int yfs_client::unlink(inum parent,const char *name)
     }
     //printf("final content:\n%s\n",final.c_str());
     r = ec->put(parent,final);
+    lc->release(parent);
     if(r != OK){
         return r;
     }
 
+    lc->acquire(ino);
     r = ec->remove(ino);
+    lc->release(ino);
     if(r != OK){
         return r;
     }
@@ -569,21 +599,34 @@ yfs_client::symlink(const char* link, inum parent, const char* name, inum &ino)
         return RPCERR;
     }
     bool found;
+    lc->acquire(create_mutex);
     lookup(parent,name,found,ino);
     if(found){
         printf("file %s has existed\n",name);
+        lc->release(create_mutex);
         return EXIST;
     }
     //cteate symlink inode
+    
     r = ec->create(3,ino);
     if(r != OK){
+        lc->release(create_mutex);
+        return r;
+    }
+    string content = string(link);
+    printf("link content:\n%s\n",link);
+    r = ec->put(ino,content);
+    if(r != OK){
+        lc->release(create_mutex);
         return r;
     }
 
     //modify parents
     string buf;
+    lc->acquire(parent);
     r = ec->get(parent,buf);
     if(r != OK){
+        lc->release(parent);
         return r;
     }    
 ;
@@ -596,16 +639,12 @@ yfs_client::symlink(const char* link, inum parent, const char* name, inum &ino)
     
     //printf("new buf\n%s\n",buf.c_str());
     r = ec->put(parent,string(buf));
+    lc->release(parent);
+    lc->release(create_mutex);
     if(r != OK){
         return r;
     }
-
-    string content = string(link);
-    printf("link content:\n%s\n",link);
-    r = ec->put(ino,content);
-    if(r != OK){
-        return r;
-    }
+  
 
     return OK;
 }
@@ -621,7 +660,9 @@ yfs_client::readlink(inum ino, string &link)
         return RPCERR;
     }
 
+    lc->acquire(ino);
     r = ec->get(ino,link);
+    lc->release(ino);
     if( r != OK){
         return r;
     }
