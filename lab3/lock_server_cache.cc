@@ -141,6 +141,10 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id,
     if(ret == rlock_protocol::OK){
       ret = lock_protocol::OK;
     }
+    else{
+      tprintf("lock-server\tid:%s\trelease lock:%ld\trecursive call\n",id.c_str(),lid);
+      return release(lid, next, r);
+    }
   }
   return ret;
 }

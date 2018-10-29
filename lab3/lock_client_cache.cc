@@ -278,8 +278,9 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
     //mutiple retry error
     tprintf("lock-client\tid:%s\tretry lock:%ld\tdon not need a lock now!!!!\n",id.c_str(),lid);
     pthread_mutex_unlock(&mymutex);
-    cl->call(lock_protocol::release, lid, id, r);
-    return ret;
+    //cl->call(lock_protocol::release, lid, id, r);
+    //return ret;
+    return rlock_protocol::RPCERR;
   }
   pthread_mutex_unlock(&mymutex);
 
@@ -345,7 +346,7 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
   if(lockmap[lid].revoke_call){
     tprintf("lock-client\tid:%s\tretry lock:%ld\tresume revoke\n",id.c_str(),lid);
     lockmap[lid].state = RELEASING;
-    lockmap[lid].revoke_call = false;
+    //lockmap[lid].revoke_call = false;
   }
   else{
     lockmap[lid].state = LOCKED;
