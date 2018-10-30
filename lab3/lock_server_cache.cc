@@ -83,14 +83,15 @@ int lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string id,
         if(cl){
           ret = cl->call(rlock_protocol::revoke, lid, size);
         }
+        return lock_protocol::RETRY;
 
-        if(ret == rlock_protocol::OK){
+        /*if(ret == rlock_protocol::OK){
           return lock_protocol::RETRY;
         }else{
           tprintf("lock-server\tid:%s\tacquire lock:%ld\trevoke error\n",id.c_str(),lid);
           return lock_protocol::RPCERR;
-        }
-        break;
+        }*/
+        
       }
       default:{
         tprintf("lock-server\tid:%s\tacquire lock:%ld\tunexpected state:%d\n",id.c_str(),lid,lockmap[lid].state);
@@ -106,7 +107,7 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id,
          int &)
 {
   lock_protocol::status ret = lock_protocol::OK;
-  int r;
+  int r = -1;
 
   tprintf("lock-server\tid:%s\trelease lock:%ld\n",id.c_str(),lid);
 
@@ -117,6 +118,19 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id,
     pthread_mutex_unlock(&mutex);
     return lock_protocol::RPCERR;
   }
+
+  //check state
+  pthread_mutex_unlock(&mutex);
+  handle h(id);
+  rpcc *cl = h.safebind();
+  if(cl){
+    ret = cl->call(rlock_protocol::stat, lid, r);
+  }    
+  if(ret == rlock_protocol::OK){
+    tprintf("lock-server\tid:%s\trelease lock:%ld\towner still holds lock\n",id.c_str(),lid);
+    return lock_protocol::RPCERR;
+  }
+  pthread_mutex_lock(&mutex);
 
   if(lockmap[lid].wait_queue.empty()){
     tprintf("lock-server\tid:%s\trelease lock:%ld\tnobody waits\n",id.c_str(),lid);
@@ -150,10 +164,17 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id,
 }
 
 lock_protocol::status
-lock_server_cache::stat(lock_protocol::lockid_t lid, int &r)
+lock_server_cache::stat(lock_protocol::lockid_t lid, std::string id, int &r)
 {
-  tprintf("stat request\n");
-  r = nacquire;
+  pthread_mutex_lock(&mutex);
+  //check ownership
+  if(lockmap[lid].owner != id){
+    tprintf("lock-server\tid:%s\tstat lock:%ld\twrong owner\n",id.c_str(),lid);
+    pthread_mutex_unlock(&mutex);
+    return lock_protocol::RPCERR;
+  }
+  pthread_mutex_unlock(&mutex);
   return lock_protocol::OK;
+
 }
 

@@ -29,9 +29,24 @@ lock_client_cache::lock_client_cache(std::string xdst,
   rpcs *rlsrpc = new rpcs(rlock_port);
   rlsrpc->reg(rlock_protocol::revoke, this, &lock_client_cache::revoke_handler);
   rlsrpc->reg(rlock_protocol::retry, this, &lock_client_cache::retry_handler);
+  rlsrpc->reg(rlock_protocol::stat, this, &lock_client_cache::stat);
 
   pthread_mutex_init(&mymutex, NULL);
   pthread_cond_init(&cv, NULL);
+}
+
+rlock_protocol::status
+lock_client_cache::stat(lock_protocol::lockid_t lid, int &){
+  int ret = rlock_protocol::OK;
+  pthread_mutex_lock(&mymutex);
+  switch(lockmap[lid].state){
+    case FREE:
+    case LOCKED:
+    case RELEASING: break;      
+    default:ret = rlock_protocol::RPCERR;
+  }
+  pthread_mutex_unlock(&mymutex);
+  return ret;
 }
 
 lock_protocol::status
@@ -208,7 +223,7 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
         pthread_mutex_unlock(&mymutex);
         int rt = cl->call(lock_protocol::acquire, lid, id, r);
 
-        if(rt == lock_protocol::OK){
+        if(rt == lock_protocol::OK || rt == lock_protocol::GRANTED){
           pthread_mutex_lock(&mymutex);
           tid next = lockmap[lid].wait_queue.front();
           lockmap[lid].wait_queue.pop();
@@ -248,18 +263,19 @@ lock_client_cache::revoke_handler(lock_protocol::lockid_t lid,
       lockmap[lid].state = NONE;
       pthread_mutex_unlock(&mymutex);
       cl->call(lock_protocol::release, lid, id, r);
-      break;
+      return ret;
     }
     case LOCKED:{
       tprintf("lock-client\tid:%s\trevoke lock:%ld\tchange state to releasing\n",id.c_str(),lid);
       lockmap[lid].state = RELEASING;
       pthread_mutex_unlock(&mymutex);
-      break;
+      return ret;
     }
     default:{
       tprintf("lock-client\tid:%s\trevoke lock:%ld\tunexpected state:%d\n",id.c_str(),lid,lockmap[lid].state);
       lockmap[lid].revoke_call = true;
       pthread_mutex_unlock(&mymutex);
+      return rlock_protocol::RPCERR;
       }
   }
   return ret;
@@ -276,10 +292,8 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
   pthread_mutex_lock(&mymutex);
   if( lockmap[lid].wait_queue.empty() && lockmap[lid].state==NONE){
     //mutiple retry error
-    tprintf("lock-client\tid:%s\tretry lock:%ld\tdon not need a lock now!!!!\n",id.c_str(),lid);
+    tprintf("lock-client\tid:%s\tretry lock:%ld\tdo not need a lock now\n",id.c_str(),lid);
     pthread_mutex_unlock(&mymutex);
-    //cl->call(lock_protocol::release, lid, id, r);
-    //return ret;
     return rlock_protocol::RPCERR;
   }
   pthread_mutex_unlock(&mymutex);
@@ -287,9 +301,9 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
   tprintf("lock-client\tid:%s\tretry lock:%ld\tdebug1\n",id.c_str(),lid);
   r = cl->call(lock_protocol::acquire, lid, id, r);
   tprintf("lock-client\tid:%s\tretry lock:%ld\tdebug2\n",id.c_str(),lid);
+
   pthread_mutex_lock(&mymutex);
 
-  
   //check state
   if(r ==lock_protocol::OK && (lockmap[lid].state==LOCKED || lockmap[lid].state==RELEASING)){
     //mutiple retry error
@@ -305,9 +319,10 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
     return ret;
   }
   //check queue
-  if(r ==lock_protocol::OK && lockmap[lid].wait_queue.empty()){
+  if(r == lock_protocol::OK && lockmap[lid].wait_queue.empty()){
     //mutiple retry error
     tprintf("lock-client\tid:%s\tretry lock:%ld\tretry error on nobody waiting\n",id.c_str(),lid);
+    lockmap[lid].state == NONE;
     pthread_mutex_unlock(&mymutex);
     cl->call(lock_protocol::release, lid, id, r);
     return ret;
@@ -315,11 +330,15 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
 
   if(r != lock_protocol::OK){
     tprintf("lock-client\tid:%s\tretry lock:%ld\tretry error state:%d\tclient state:%d\n",id.c_str(),lid,r,lockmap[lid].state);
-    /*if(lockmap[lid].wait_queue.empty()||(lockmap[lid].state==LOCKED || lockmap[lid].state==RELEASING)){
-      pthread_mutex_unlock(&mymutex);
+    
+    pthread_mutex_unlock(&mymutex);
+    r = cl->call(lock_protocol::stat, lid, id, r);
+    if(r != lock_protocol::OK){
+      tprintf("lock-client\tid:%s\tretry lock:%ld\tnot lock owner\n",id.c_str(),lid);
       return ret;
-    } */ 
-    //check state
+    }
+    pthread_mutex_lock(&mymutex);
+
     if((lockmap[lid].state==LOCKED || lockmap[lid].state==RELEASING)){
       //mutiple retry error
       tprintf("lock-client\tid:%s\tretry lock:%ld\tretry error on holding lock state:%d\n",id.c_str(),lid,lockmap[lid].state);
@@ -329,17 +348,21 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
     if(lockmap[lid].wait_queue.empty()){
       //mutiple retry error
       tprintf("lock-client\tid:%s\tretry lock:%ld\tretry error on not wanting lock\n",id.c_str(),lid);
+      lockmap[lid].state == NONE;
       pthread_mutex_unlock(&mymutex);
       cl->call(lock_protocol::release, lid, id, r);
       return ret;
     }
-    /*if(r != lock_protocol::GRANTED){
-      return ret;
-    }
-    tprintf("lock-client\tid:%s\tretry lock:%ld\tmy granted lock\n",id.c_str(),lid);*/
-    //return ret;
   }
+
+  
+
   tprintf("lock-client\tid:%s\tretry lock:%ld\tdebug3\n",id.c_str(),lid);
+  if(lockmap[lid].wait_queue.empty()){
+    pthread_mutex_unlock(&mymutex);
+    cl->call(lock_protocol::release, lid, id, r);
+    return ret;
+  }
   tid next = lockmap[lid].wait_queue.front();
   lockmap[lid].wait_queue.pop();
   tprintf("lock-client\tid:%s\tretry lock:%ld\tnext owner:%ld\n",id.c_str(),lid,next);

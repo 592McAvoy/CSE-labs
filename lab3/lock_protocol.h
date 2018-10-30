@@ -25,7 +25,8 @@ public:
     typedef int status;
     enum rpc_numbers {
         revoke = 0x8001,
-        retry = 0x8002
+        retry = 0x8002,
+        stat
     };
 };
 
