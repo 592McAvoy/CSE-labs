@@ -143,7 +143,7 @@ lock_client_cache::acquire(lock_protocol::lockid_t lid)
       lockmap[lid].owner = next;
     }
 
-    if(lockmap[lid].revoke_call){
+    if(lockmap[lid].revoke_call || lockmap[lid].state == RELEASING){
       lockmap[lid].revoke_call = false;
       lockmap[lid].state = RELEASING;
     }
@@ -187,6 +187,7 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
 
   switch(lockmap[lid].state){
     case LOCKED:{
+      tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tlocked lock\n",id.c_str(),thread,lid);
       if(lockmap[lid].wait_queue.empty()){
         tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tnobody waits\n",id.c_str(),thread,lid);
         lockmap[lid].owner = -1;
@@ -195,6 +196,10 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
       }
       else{
         tid next = lockmap[lid].wait_queue.front();
+        if(next == 0){
+            cl->call(lock_protocol::release, lid, id, r);
+            return rlock_protocol::OK;
+          }
         lockmap[lid].wait_queue.pop();
         lockmap[lid].owner = next;
         tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tnext owner:%ld\n",id.c_str(),thread,lid,next);
@@ -204,7 +209,7 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
       return ret;
     }
     case RELEASING:{
-      tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\trelease lock\n",id.c_str(),thread,lid);
+      tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\treleasing lock\n",id.c_str(),thread,lid);
       
       if(!lockmap[lid].wait_queue.empty()){
         lockmap[lid].state = ACQUIRING;
@@ -226,10 +231,14 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
         if(rt == lock_protocol::OK || rt == lock_protocol::GRANTED){
           pthread_mutex_lock(&mymutex);
           tid next = lockmap[lid].wait_queue.front();
+          if(next == 0){
+            cl->call(lock_protocol::release, lid, id, r);
+            return rlock_protocol::OK;
+          }
           lockmap[lid].wait_queue.pop();
           lockmap[lid].owner = next;
           lockmap[lid].state = LOCKED;
-          tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tnext owner:%ld\n",id.c_str(),thread,lid,next);
+          tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tafter call next owner:%ld\n",id.c_str(),thread,lid,next);
           pthread_cond_broadcast(&cv);
           pthread_mutex_unlock(&mymutex);
         }
