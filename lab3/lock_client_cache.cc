@@ -25,20 +25,24 @@ lock_client_cache::lock_client_cache(std::string xdst,
   std::ostringstream host;
   host << hname << ":" << rlock_port;
   id = host.str();
+
+  pthread_mutex_init(&mymutex, NULL);
+  pthread_cond_init(&cv, NULL);
+  
   last_port = rlock_port;
   rpcs *rlsrpc = new rpcs(rlock_port);
   rlsrpc->reg(rlock_protocol::revoke, this, &lock_client_cache::revoke_handler);
   rlsrpc->reg(rlock_protocol::retry, this, &lock_client_cache::retry_handler);
   rlsrpc->reg(rlock_protocol::stat, this, &lock_client_cache::stat);
 
-  pthread_mutex_init(&mymutex, NULL);
-  pthread_cond_init(&cv, NULL);
+  
 }
 
 rlock_protocol::status
 lock_client_cache::stat(lock_protocol::lockid_t lid, int &){
   int ret = rlock_protocol::OK;
   pthread_mutex_lock(&mymutex);
+  tprintf("lock-client\tid:%s\tstat lock:%ld\tstate:%d\n",id.c_str(),lid,lockmap[lid].state);
   switch(lockmap[lid].state){
     case FREE:
     case LOCKED:
@@ -52,11 +56,12 @@ lock_client_cache::stat(lock_protocol::lockid_t lid, int &){
 lock_protocol::status
 lock_client_cache::acquire(lock_protocol::lockid_t lid)
 {
-  tid thread = pthread_self();
+  
   int ret = lock_protocol::OK;
   int r;
 
   pthread_mutex_lock(&mymutex);
+  tid thread = pthread_self();
   tprintf("lock-client\tid:%s\tthread:%ld\tacquire lock:%ld\n",id.c_str(),thread,lid);
   if(lockmap.find(lid) == lockmap.end()){
     //a new lock 
@@ -176,10 +181,11 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
 {
   int ret = rlock_protocol::OK;
   int r;
-  tid thread = pthread_self();
   
-  tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\n",id.c_str(),thread,lid);
   pthread_mutex_lock(&mymutex);
+
+  tid thread = pthread_self();  
+  tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\n",id.c_str(),thread,lid);
   if(lockmap[lid].revoke_call){
     lockmap[lid].state = RELEASING;
     lockmap[lid].revoke_call = false;
@@ -196,10 +202,11 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
       }
       else{
         tid next = lockmap[lid].wait_queue.front();
-        if(next == 0){
-            cl->call(lock_protocol::release, lid, id, r);
-            return rlock_protocol::OK;
-          }
+        if(next <= 0){
+          pthread_mutex_unlock(&mymutex);
+          cl->call(lock_protocol::release, lid, id, r);
+          return rlock_protocol::OK;
+        }
         lockmap[lid].wait_queue.pop();
         lockmap[lid].owner = next;
         tprintf("lock-client\tid:%s\tthread:%ld\trelease lock:%ld\tnext owner:%ld\n",id.c_str(),thread,lid,next);
@@ -230,8 +237,13 @@ lock_client_cache::release(lock_protocol::lockid_t lid)
 
         if(rt == lock_protocol::OK || rt == lock_protocol::GRANTED){
           pthread_mutex_lock(&mymutex);
+          if(lockmap[lid].owner != -1){
+            pthread_mutex_unlock(&mymutex);
+            return ret;
+          }
           tid next = lockmap[lid].wait_queue.front();
-          if(next == 0){
+          if(next <= 0){
+            pthread_mutex_unlock(&mymutex);
             cl->call(lock_protocol::release, lid, id, r);
             return rlock_protocol::OK;
           }
@@ -264,8 +276,8 @@ lock_client_cache::revoke_handler(lock_protocol::lockid_t lid,
   int ret = rlock_protocol::OK;
   int r;
  
-  tprintf("lock-client\tid:%s\trevoke lock:%ld\n",id.c_str(),lid);
   pthread_mutex_lock(&mymutex);
+  tprintf("lock-client\tid:%s\trevoke lock:%ld\n",id.c_str(),lid);
   switch(lockmap[lid].state){
     case FREE:{
       tprintf("lock-client\tid:%s\trevoke lock:%ld\trelease free lock\n",id.c_str(),lid);
@@ -374,7 +386,7 @@ lock_client_cache::retry_handler(lock_protocol::lockid_t lid,
   }
   tid next = lockmap[lid].wait_queue.front();
   lockmap[lid].wait_queue.pop();
-  tprintf("lock-client\tid:%s\tretry lock:%ld\tnext owner:%ld\n",id.c_str(),lid,next);
+  tprintf("lock-client\tid:%s\tretry lock:%ld\tnext owner:%ld\t%d waiting\n",id.c_str(),lid,next,lockmap[lid].wait_queue.size());
   if(lockmap[lid].revoke_call){
     tprintf("lock-client\tid:%s\tretry lock:%ld\tresume revoke\n",id.c_str(),lid);
     lockmap[lid].state = RELEASING;
