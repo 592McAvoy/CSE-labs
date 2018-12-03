@@ -33,5 +33,5 @@ datanode_base.o: datanode_base.cc datanode.h proto/output/datanode.pb.h \
  proto/output/google/protobuf/io/zero_copy_stream_impl_lite.h \
  proto/output/google/protobuf/stubs/stl_util.h extent_protocol.h \
  rpc/rpc.h rpc/thr_pool.h rpc/fifo.h rpc/slock.h lang/verify.h \
- rpc/marshall.h lang/algorithm.h rpc/connection.h rpc/pollmgr.h hrpc.h \
- inode_manager.h
+ rpc/marshall.h lang/algorithm.h rpc/connection.h rpc/pollmgr.h \
+ threader.h hrpc.h inode_manager.h

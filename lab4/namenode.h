@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <set>
 #include <unordered_map>
+#include <time.h>
+#include "threader.h"
 
 class extent_client;
 class lock_client;
@@ -44,6 +46,7 @@ class NameNode {
         size(size),
         locs(locs) {}
   };
+  
 
 private:
   extent_client *ec;
@@ -53,10 +56,27 @@ private:
   std::map<yfs_client::inum, uint32_t> pendingWrite;
 
   /* Add your member variables/functions here */
-  //const uint64_t BLOCKSIZE = 1024*16;
-  //const int INODE_NUM = 1024;
   const int create_mark = -7;
+  std::list<DatanodeIDProto> datanodes;
+  enum status{d_NORMAL=0,d_DEAD,d_RECOVER};  
+  struct State{
+    time_t lastTime;
+    status stat;
+    State(time_t t,
+          status s):
+          lastTime(t),
+          stat(s){}
+  };
+  int maplock = 0; 
+  std::map<DatanodeIDProto, State> stateMap;
+  std::list<blockid_t> dirtyBlocks;
+
   unsigned int GetFileSize(yfs_client::inum ino);
+  void CheckAlive(DatanodeIDProto id);
+  void ReplicateDatanode(DatanodeIDProto newid);
+  void ReallocDatanode(DatanodeIDProto broken);
+  void RecordDirtyInode(yfs_client::inum ino);
+  
 
 private:
   void GetFileInfo();

@@ -34,4 +34,4 @@ datanode.o: datanode.cc datanode.h proto/output/datanode.pb.h \
  proto/output/google/protobuf/stubs/stl_util.h extent_protocol.h \
  rpc/rpc.h rpc/thr_pool.h rpc/fifo.h rpc/slock.h lang/verify.h \
  rpc/marshall.h lang/algorithm.h rpc/connection.h rpc/pollmgr.h \
- extent_client.h extent_server.h inode_manager.h threader.h
+ threader.h extent_client.h extent_server.h inode_manager.h

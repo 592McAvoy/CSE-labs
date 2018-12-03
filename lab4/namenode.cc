@@ -22,6 +22,15 @@ NameNode::GetFileSize(yfs_client::inum ino){
   return a.size;  
 }
 
+void 
+NameNode::RecordDirtyInode(yfs_client::inum ino){
+  list<blockid_t> l;
+  ec->get_block_ids(ino, l);
+  list<blockid_t>::iterator it;
+  for(it=l.begin();it!=l.end();it++){
+    dirtyBlocks.push_back(*it);
+  }
+}
 list<NameNode::LocatedBlock> NameNode::GetBlockLocations(yfs_client::inum ino) {
   printf("namenode\tGetBlockLocations\tino:%d\n",ino);fflush(stdout);
   list<blockid_t> block_ids;
@@ -44,7 +53,7 @@ list<NameNode::LocatedBlock> NameNode::GetBlockLocations(yfs_client::inum ino) {
   for(int i=0;i<len;i++){
     blockid_t id = block_ids.front();
     uint64_t size = (i==len-1) ? filesize%BLOCK_SIZE : BLOCK_SIZE;    
-    block_locs.push_back(LocatedBlock(id, i, size, master_datanode));
+    block_locs.push_back(LocatedBlock(id, i*BLOCK_SIZE, size, GetDatanodes()));
     block_ids.pop_front();
   }
 
@@ -58,6 +67,7 @@ bool NameNode::Complete(yfs_client::inum ino, uint32_t new_size) {
   extent_protocol::status ret;
 
   ret = ec->complete(ino, new_size);
+  RecordDirtyInode(ino);
   lc->release(ino);
   printf("namenode\trelease lock:%d\n",ino);fflush(stdout);
   if(ret != extent_protocol::OK){    
@@ -75,7 +85,8 @@ NameNode::LocatedBlock NameNode::AppendBlock(yfs_client::inum ino) {
   unsigned int filesize = GetFileSize(ino);  
   int off = filesize/BLOCK_SIZE + (filesize%BLOCK_SIZE>0);
   ret = ec->append_block(ino, bid);
-  return LocatedBlock(bid,off,BLOCK_SIZE,master_datanode);
+  
+  return LocatedBlock(bid,off,BLOCK_SIZE, GetDatanodes());
 }
 
 bool NameNode::Rename(yfs_client::inum src_dir_ino, string src_name, yfs_client::inum dst_dir_ino, string dst_name) {
@@ -116,6 +127,11 @@ bool NameNode::Create(yfs_client::inum parent, string name, mode_t mode, yfs_cli
   }
 
   r = yfs->addEntry(parent, ino_out, name);
+
+  lc->acquire(parent);
+  RecordDirtyInode(parent);
+  lc->release(parent);
+
   if(r != yfs_client::OK){
     return false;
   }  
@@ -209,12 +225,114 @@ bool NameNode::Unlink(yfs_client::inum parent, string name, yfs_client::inum ino
   return true;
 }
 
+
 void NameNode::DatanodeHeartbeat(DatanodeIDProto id) {
+  printf("namenode\tDatanodeHeartbeat\n");fflush(stdout);
+
+  State s = stateMap.find(id)->second;
+  if(s.stat == d_DEAD){
+    //lc->acquire(maplock);
+    stateMap.find(id)->second.stat = d_RECOVER; 
+    stateMap.find(id)->second.lastTime = time(NULL);   
+    //lc->release(maplock);
+    //replicate
+    NewThread(this, &NameNode::ReplicateDatanode, id);
+    NewThread(this, &NameNode::CheckAlive, id);
+  }
+  else{
+    stateMap.find(id)->second.lastTime = time(NULL);
+  }
+  //stateMap[id] = State(s.lastTime, s.live);
 }
 
 void NameNode::RegisterDatanode(DatanodeIDProto id) {
+  printf("namenode\tRegisterDatanode\n");fflush(stdout);
+  
+  datanodes.push_back(id);
+  //lc->acquire(maplock);
+  stateMap.insert(std::pair<DatanodeIDProto, State>(id, State(time(NULL), d_RECOVER)));
+  //lc->release(maplock);
+  //replicate
+  NewThread(this, &NameNode::ReplicateDatanode, id);
+  //create a new thread to check liveness
+  NewThread(this, &NameNode::CheckAlive, id);
 }
 
 list<DatanodeIDProto> NameNode::GetDatanodes() {
-  return list<DatanodeIDProto>();
+  printf("namenode\tGetDatanodes\n");fflush(stdout);
+  list<DatanodeIDProto> result;
+  list<DatanodeIDProto>::iterator it;
+  //lc->acquire(maplock);
+  for(it=datanodes.begin();it!=datanodes.end();it++)
+  {
+    DatanodeIDProto id = *it;
+    State s = stateMap.find(id)->second;
+    if(s.stat == d_NORMAL){
+      result.push_back(id);
+    }
+  }
+  //lc->release(maplock);
+  return result;
+}
+
+void  
+NameNode::CheckAlive(DatanodeIDProto id){
+  time_t now;
+  while(1){
+    now = time(NULL);
+    State s = stateMap.find(id)->second;
+    if(difftime(now, s.lastTime)>=5){
+      //lc->acquire(maplock);
+      stateMap.find(id)->second.stat = d_DEAD;
+      //lc->release(maplock);
+
+      printf("namenode\tCheckAlive\tDead\n");fflush(stdout);
+      ReallocDatanode(id);
+      return;
+    }
+    printf("namenode\tCheckAlive\tLive\n");fflush(stdout);
+    sleep(1);//check once per socend;    
+  }
+}
+
+void 
+NameNode::ReplicateDatanode(DatanodeIDProto id){
+  printf("namenode\tReplicateDatanode\n");fflush(stdout);
+  
+  if(datanodes.empty() || dirtyBlocks.empty()){
+    stateMap.find(id)->second.stat = d_NORMAL;
+    return;
+  }
+  
+  list<blockid_t>::iterator it;
+  for(it=dirtyBlocks.begin();it!=dirtyBlocks.end();it++){
+    blockid_t bid = *it;
+    ReplicateBlock(bid, master_datanode, id);
+  }
+  //lc->acquire(maplock);
+  stateMap.find(id)->second.stat = d_NORMAL;
+  //lc->release(maplock);
+ }
+
+void 
+NameNode::ReallocDatanode(DatanodeIDProto broken){
+  printf("namenode\tReallocDatanode\n");fflush(stdout);
+  if(dirtyBlocks.empty()){
+    return;
+  }
+  list<DatanodeIDProto> health = GetDatanodes();
+  if(health.empty()){
+    return;
+  }
+  list<DatanodeIDProto> ::iterator datait;
+  for(datait=health.begin();datait!=health.end();datait++){
+    DatanodeIDProto tt = *datait;
+    list<blockid_t>::iterator it;
+    for(it=dirtyBlocks.begin();it!=dirtyBlocks.end();it++){
+      blockid_t bid = *it;
+      //ReplicateBlock(bid, broken, tt);
+      ReplicateBlock(bid, master_datanode, tt);
+  }
+  }
+  
 }

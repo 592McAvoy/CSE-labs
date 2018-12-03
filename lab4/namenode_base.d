@@ -31,7 +31,7 @@ namenode_base.o: namenode_base.cc proto/output/namenode.pb.h \
  rpc/rpc.h rpc/thr_pool.h rpc/fifo.h rpc/slock.h lang/verify.h \
  rpc/marshall.h lang/algorithm.h rpc/connection.h rpc/pollmgr.h \
  lock_client.h lock_client_cache.h lang/verify.h extent_client.h \
- extent_protocol.h extent_server.h inode_manager.h hrpc.h \
+ extent_protocol.h extent_server.h inode_manager.h threader.h hrpc.h \
  proto/output/google/protobuf/io/coded_stream.h \
  proto/output/google/protobuf/io/zero_copy_stream_impl.h \
  proto/output/google/protobuf/io/zero_copy_stream.h \
