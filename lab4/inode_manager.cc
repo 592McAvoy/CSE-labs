@@ -554,7 +554,7 @@ inode_manager::append_block(uint32_t inum, blockid_t &bid)
   int size = ino->size;
   int off = size / BLOCK_SIZE + (size%BLOCK_SIZE > 0);
   
-  int idx = off + 1;
+  int idx = off;
   if(idx > MAXFILE){
     printf("file is large enough, can not append new block\n");
     return;
@@ -563,7 +563,7 @@ inode_manager::append_block(uint32_t inum, blockid_t &bid)
   bid = bm->alloc_block();
   
   if(idx < NDIRECT){
-    ino->blocks[i] = bid;
+    ino->blocks[idx] = bid;
   }
   else{
     if(idx = NDIRECT){
@@ -590,21 +590,21 @@ inode_manager::get_block_ids(uint32_t inum, std::list<blockid_t> &block_ids)
   struct inode* ino = get_inode(inum);
   int size = ino->size;
   int off = size / BLOCK_SIZE + (size%BLOCK_SIZE > 0);
-  int limit = off+1;
-  if(off >= NDIRECT){
+  int limit = off;
+  if(off > NDIRECT){
     limit = NDIRECT;
   }
   for(int i=0;i<limit;i++){
-    block_ids.push_back(ino->blocks[i])
+    block_ids.push_back(ino->blocks[i]);
   }
-  if(off >= NDIRECT){
+  if(off > NDIRECT){
     char tmp[BLOCK_SIZE];
     bm->read_block(ino->blocks[NDIRECT],tmp); 
     const char *sep = ";"; //different content is divided by ;
     char *num;
     num = strtok(tmp, sep);
     blockid_t id ;
-    for(int i=0;i<off-NDIRECT+1;i++){
+    for(int i=0;i<off-NDIRECT;i++){
       id = atoi(num);
       block_ids.push_back(id);
       num = strtok(NULL, sep);  
@@ -619,9 +619,9 @@ inode_manager::read_block(blockid_t id, char buf[BLOCK_SIZE])
   /*
    * your code goes here.
    */
-  memset(buf,o,BLOCK_SIZE);
+  memset(buf,0,BLOCK_SIZE);
   bm->read_block(id, buf);
-`
+
 }
 
 void

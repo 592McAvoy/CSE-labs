@@ -42,7 +42,7 @@ rlock_protocol::status
 lock_client_cache::stat(lock_protocol::lockid_t lid, int &){
   int ret = rlock_protocol::OK;
   pthread_mutex_lock(&mymutex);
-  tprintf("lock-client\tid:%s\tstat lock:%ld\tstate:%d\n",id.c_str(),lid,lockmap[lid].state);
+  //tprintf("lock-client\tid:%s\tstat lock:%ld\tstate:%d\n",id.c_str(),lid,lockmap[lid].state);
   switch(lockmap[lid].state){
     case FREE:
     case LOCKED:

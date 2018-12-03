@@ -59,15 +59,15 @@ yfs_client::isfile(inum inum)
     extent_protocol::attr a;
 
     if (ec->getattr(inum, a) != extent_protocol::OK) {
-        printf("error getting attr\n");
+        printf("error getting attr\n");fflush(stdout);
         return false;
     }
 
     if (a.type == extent_protocol::T_FILE) {
-        printf("isfile: %lld is a file\n", inum);
+        printf("isfile: %lld is a file\n", inum);fflush(stdout);
         return true;
     } 
-    printf("isfile: %lld is not a file\n", inum);
+    printf("isfile: %lld is not a file\n", inum);fflush(stdout);
     return false;
 }
 /** Your code here for Lab...
@@ -84,15 +84,15 @@ yfs_client::isdir(inum inum)
     extent_protocol::attr a;
 
     if (ec->getattr(inum, a) != extent_protocol::OK) {
-        printf("error getting attr\n");
+        printf("error getting attr\n");fflush(stdout);
         return false;
     }
 
     if (a.type == extent_protocol::T_DIR) {
-        printf("isdir: %lld is a dir\n", inum);
+        printf("isdir: %lld is a dir\n", inum);fflush(stdout);
         return true;
     } 
-    printf("isdir: %lld is not a dir\n", inum);
+    printf("isdir: %lld is not a dir\n", inum);fflush(stdout);
     return false;
 }
 
@@ -104,15 +104,15 @@ yfs_client::issymlink(inum inum)
     extent_protocol::attr a;
 
     if (ec->getattr(inum, a) != extent_protocol::OK) {
-        printf("error getting attr\n");
+        printf("error getting attr\n");fflush(stdout);
         return false;
     }
 
     if (a.type == extent_protocol::T_SYMLINK) {
-        printf("issymlink: %lld is a symlink\n", inum);
+        printf("issymlink: %lld is a symlink\n", inum);fflush(stdout);
         return true;
     } 
-    printf("issymlink: %lld is not a symlink\n", inum);
+    printf("issymlink: %lld is not a symlink\n", inum);fflush(stdout);
     return false;
 }
 
@@ -121,7 +121,7 @@ yfs_client::getfile(inum inum, fileinfo &fin)
 {
     int r = OK;
 
-    printf("getfile %016llx\n", inum);
+    //printf("getfile %016llx\n", inum);
     extent_protocol::attr a;
     if (ec->getattr(inum, a) != extent_protocol::OK) {
         r = IOERR;
@@ -132,7 +132,7 @@ yfs_client::getfile(inum inum, fileinfo &fin)
     fin.mtime = a.mtime;
     fin.ctime = a.ctime;
     fin.size = a.size;
-    printf("getfile %016llx -> sz %llu\n", inum, fin.size);
+    printf("getfile %016llx -> sz %llu\n", inum, fin.size);fflush(stdout);
 
 release:
     return r;
@@ -143,7 +143,7 @@ yfs_client::getdir(inum inum, dirinfo &din)
 {
     int r = OK;
 
-    printf("getdir %016llx\n", inum);
+    printf("getdir %016llx\n", inum);fflush(stdout);
     extent_protocol::attr a;
     if (ec->getattr(inum, a) != extent_protocol::OK) {
         r = IOERR;
@@ -226,7 +226,7 @@ yfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out)
      * note: lookup is what you need to check if file exist;
      * after create file or dir, you must remember to modify the parent infomation.
      */
-    printf("====================create file %s==================\n",name);
+    printf("YFS\tcreate\tparent:%d\tname:%s\n",parent, name);fflush(stdout);
     if(!isValid(name)){
         printf("filename %s is not valid\n",name);
         return RPCERR;
@@ -286,7 +286,7 @@ yfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out)
      * note: lookup is what you need to check if directory exist;
      * after create file or dir, you must remember to modify the parent infomation.
      */
-    printf("====================make dir %s==================\n",name);
+    printf("YFS\tmkdir\tparent:%d\tname:%s\n",parent, name);fflush(stdout);
     if(!isValid(name)){
         printf("filename %s is not valid\n",name);
         return RPCERR;
@@ -301,7 +301,7 @@ yfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out)
         return EXIST;
     }
 
-    //cteate dir
+    //create dir
     r = ec->create(1,ino_out);
     if(r != extent_protocol::OK){
         lc->release(create_mutex);
@@ -354,7 +354,7 @@ yfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out)
     */
 
 
-    printf("====================look up %s==================\n",name);
+    printf("YFS\tlookup\tparent:%d\tname:%s\n",parent, name);fflush(stdout);
     if(!isdir(parent)){
         found = false;
         printf("--------parent not a dir -------\n");
@@ -365,7 +365,7 @@ yfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out)
     list<dirent> list;
     readdir(parent,list);
     int size = (int)list.size();
-    printf("list in lookup size:%d\n",size);
+    //printf("list in lookup size:%d\n",size);
     for(int i=0;i<size;i++){
         dirent dd = list.front();
         list.pop_front();
@@ -378,7 +378,7 @@ yfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out)
         }
     }
     found = false;
-    printf("------parent doesn't have file %s\n",name);
+    printf("------parent doesn't have file %s\n",name);fflush(stdout);
     return NOENT;
 }
 
@@ -392,7 +392,7 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
      * note: you should parse the dirctory content using your defined format,
      * and push the dirents to the list.
      */
-    printf("====================read dir ==================\n");
+    printf("YFS\treadir\tdir:%d\n",dir);fflush(stdout);
 
     if(!isdir(dir)){
         printf("this is not a dir!!\n");
@@ -400,10 +400,11 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
     }
 
     string buf;
-
+    printf("YFS\treadir\tacquire lock:%d\n",dir);fflush(stdout);
     lc->acquire(dir);
     r = ec->get(dir,buf);
     lc->release(dir);
+    printf("YFS\treadir\trelease lock:%d\n",dir);fflush(stdout);
     if(r != extent_protocol::OK){
         return r;
     }
@@ -416,7 +417,7 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
     char *tmp;
     tmp = strtok(content, sep);
     while(tmp){
-        //printf("total content:\n%s \n", tmp);
+        printf("\tentry:\t%s \n", tmp);fflush(stdout);
         string total = string(tmp);
         int pos = total.find(':');//[filename:inoNum]
         dirent dd;
@@ -427,7 +428,7 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
         //printf("list in readdir size:%d\n",(int)list.size());
         tmp = strtok(NULL, sep);//get next content
     }
-    printf("list in readdir size:%d\n",(int)list.size());
+    //printf("list in readdir size:%d\n",(int)list.size());
     return r;
 }
 
@@ -441,7 +442,7 @@ yfs_client::read(inum ino, size_t size, off_t off, std::string &data)
      * note: read using ec->get().
      */
 
-    printf("====================read==================\n");
+    printf("YFS\tread\tino:%d\tsize:%d\n",ino, size);fflush(stdout);
 
     string buf;
 
@@ -480,7 +481,7 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
      * when off > length of original file, fill the holes with '\0'.
      */
 
-    printf("===================write==================\n");
+    printf("YFS\twrite\tino:%d\tsize:%d\n",ino, size);fflush(stdout);
     string buf;
     lc->acquire(ino);
     r = ec->get(ino,buf);
@@ -541,7 +542,7 @@ int yfs_client::unlink(inum parent,const char *name)
      * note: you should remove the file using ec->remove,
      * and update the parent directory content.
      */
-    printf("============unlink %s==================\n",name);
+    printf("YFS\tunlink\tparent:%d\tname:%s\n",parent, name);fflush(stdout);
     inum ino;
     bool found;
     lookup(parent,name,found,ino);
@@ -597,7 +598,7 @@ int
 yfs_client::symlink(const char* link, inum parent, const char* name, inum &ino)
 {
     int r = OK;
-    printf("====================symlink %s==================\n",name);
+    printf("YFS\tsymlink\tparent:%d\tname:%s\n",parent, name);fflush(stdout);
     if(!isValid(name)){
         printf("filename %s is not valid\n",name);
         return RPCERR;
@@ -678,6 +679,7 @@ yfs_client::readlink(inum ino, string &link)
 
 int 
 yfs_client::rename(inum src_dir_ino, string src_name, inum dst_dir_ino, string dst_name){
+    printf("YFS\trename\n");fflush(stdout);
     inum ino;
     int r;
     r = delEntry(src_dir_ino, ino, src_name);
@@ -689,7 +691,9 @@ yfs_client::rename(inum src_dir_ino, string src_name, inum dst_dir_ino, string d
 }
 int 
 yfs_client::addEntry(inum parent, inum ino, string name){
+    printf("YFS\taddEntry\tparent:%d\tname:%s\tino:%d\n",parent, name.c_str(),ino);fflush(stdout);
     inum n;
+    int r;
     bool found;
     lookup(parent, name.c_str(), found, n);
     if(found){
@@ -714,6 +718,7 @@ yfs_client::addEntry(inum parent, inum ino, string name){
 }
 int 
 yfs_client::delEntry(inum parent, inum &ino, string name){
+    printf("YFS\tdelEntry\tparent:%d\tname:%s\n",parent, name.c_str());fflush(stdout);
     int r = OK;
     bool found;
     lookup(parent, name.c_str(), found, ino);
@@ -721,13 +726,16 @@ yfs_client::delEntry(inum parent, inum &ino, string name){
         return ENOENT;
     }
     string buf;
+    printf("YFS\tdelEntry\tdelete ino:%d\n",ino);fflush(stdout);
+    printf("YFS\tdelEntry\tacquire lock:%d\n",parent);fflush(stdout);
     lc->acquire(parent);
     r = ec->get(parent, buf);
     if(r != OK){
         lc->release(parent);
+        printf("YFS\tdelEntry\trelease lock:%d\n",parent);fflush(stdout);
         return r;
     }
-    string dele = src_name + ":" + filename(ino);
+    string dele = name + ":" + filename(ino);
     size_t pos = buf.find(dele);
     string final;
     int len;
@@ -740,5 +748,6 @@ yfs_client::delEntry(inum parent, inum &ino, string name){
     }
     r = ec->put(parent,final);
     lc->release(parent);
+    printf("YFS\tdelEntry\trelease lock:%d\n",parent);fflush(stdout);
     return r;
 }

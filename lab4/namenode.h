@@ -53,9 +53,9 @@ private:
   std::map<yfs_client::inum, uint32_t> pendingWrite;
 
   /* Add your member variables/functions here */
-  const uint64_t BLOCKSIZE = 1024*16;
-  const int INODE_NUM = 1024;
-  const int create_mark = -1;
+  //const uint64_t BLOCKSIZE = 1024*16;
+  //const int INODE_NUM = 1024;
+  const int create_mark = -7;
   unsigned int GetFileSize(yfs_client::inum ino);
 
 private:
